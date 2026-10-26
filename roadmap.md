@@ -38,4 +38,4 @@ One number first: days until it shows up. Everything below serves that.
 - v100 Ten years of packages in one calm list
 
 ## Ingested 2026-10-22
-- [ ] Apple emailed "There's an issue with your Cartons (iOS) submission" (submitted Oct 20, 2026 05:31 PM PDT by API key, 1 item, submission ID 47d903af-ce77-450c-b448-ac44199d8411, App Version 1.0.0 for iOS). The reason is cut off in the screenshot (/Users/joshua/Documents/Code/notes/attachments/2026-10-22/asc-1.png). Read it with `asc web review show`, fix, resubmit. Mac 1.0.0 was submitted separately and is not named in this email.
+- [ ] Apple rejected Cartons 1.0.0 on iPhone and Mac under guideline 4.3(a), spam. Appeals sent: Mac 2026-10-25, iPhone 2026-10-26 from Joshua's Safari (the asc web login was hanging). Wait for Apple's reply; build 1.1 only if they stay vague, and resubmit only on Joshua's yes.
