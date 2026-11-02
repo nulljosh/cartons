@@ -3,7 +3,6 @@
 One number first: days until it shows up. Everything below serves that.
 
 ## v1.1 (next build, while 1.0 is in review)
-- [ ] If review rejects for "couldn't test" (2.1): reply with how to get a live UPS number, never Joshua's own
 
 ## v1 to v10: the tracker people keep
 - v3 Widgets: next delivery on the home and lock screen (blocked: the App Group needs Joshua to run `asc web auth login` himself)
