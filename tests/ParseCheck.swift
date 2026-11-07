@@ -67,6 +67,18 @@ struct ParseCheck {
         let dec = DateComponents(calendar: .current, year: 2026, month: 12, day: 30).date!
         assert(Calendar.current.component(.year, from: UPSPage.day("Friday, January 2", now: dec)!) == 2027)
         assert(UPSPage.day("Tomorrow, 9:30 A.M.", now: dec) == Calendar.current.date(byAdding: .day, value: 1, to: dec))
+        // widget countdown: soonest undelivered package wins, past and delivered ones never do
+        let now = DateComponents(calendar: .current, year: 2026, month: 11, day: 7, hour: 22).date!
+        let on = { (d: Int) in Calendar.current.date(byAdding: .day, value: d, to: now)! }
+        let snaps = [Snap(number: "A", name: "", status: "On the Way", eta: on(5), delivered: false),
+                     Snap(number: "B", name: "", status: "Delivered", eta: on(1), delivered: true),
+                     Snap(number: "C", name: "", status: "On the Way", eta: on(2), delivered: false),
+                     Snap(number: "D", name: "", status: "On the Way", eta: on(-1), delivered: false),
+                     Snap(number: "E", name: "", status: "", eta: nil, delivered: false)]
+        assert(Shared.next(snaps, now: now)?.number == "C")
+        assert(Shared.days(to: on(2), from: now) == 2)
+        assert(Shared.next([], now: now) == nil)
+        assert(Shared.trackingNumber(in: "https://www.ups.com/track?tracknum=1z999aa10123456784&loc=en") == "1Z999AA10123456784")
         print("parse check ok")
     }
 }

@@ -7,6 +7,10 @@ UPS's API needs a UPS shipping account for keys, and ups.com blocks plain HTTP (
 
 ## Layout
 - `app/Cartons/`: SwiftUI. `Brand` registers Cartons Sans and `Font.carton(_:)` sets it at Dynamic Type sizes. `Store` (list, archive, iCloud key-value sync), `PackageList` (Packages and Archive tabs), `SettingsView` (profile, sync), `UPSPage` (the reader), `Mascot` (Tuck, the splash and onboarding).
+- `app/Shared/`: compiled into the app and both iPhone extensions. `Snap` (what widgets read), the App Group `group.com.nulljosh.carton`, `Shared.next` (which package the countdown shows), the share inbox `Shared.pending`, and `DeliveryAttributes` for the Live Activity. `Store.publish()` writes the snaps after every check and save.
+- `app/Widgets/` (iPhone only, `CartonsWidgets`): the Countdown widget (Home Screen small and medium, Lock Screen circular, rectangular and inline) and the Live Activity a package starts from "Follow on Lock Screen" in its detail view. Live Activities update on each check and end four hours after delivery.
+- `app/Share/` (iPhone only, `CartonsShare`): share a UPS email, link or text from Mail or Safari; the number waits in `Shared.pending` and Cartons adds it the next time it opens.
+- iPhone is 1.1.0 (`MARKETING_VERSION[sdk=iphone*]`), Mac stays 1.0.0 because none of this reaches the Mac. Both extensions need the App Group on their App IDs before an archive signs.
 - `Cartons.icon`: Icon Composer bundle, the source of the app icon. Drawing in `brand/src/box.svg`. `Tuck.icon` is the alternate icon (iOS only, picked in Settings), layers drawn in `brand/src/tuck/`.
 - `brand/`: `BRAND.md` is the rulebook, `tokens.css` the web tokens, `cover/` the App Store cover.
 - `fonts/`: Cartons Sans (Inter, OFL, renamed). Rebuild with `uv run --with fonttools --with brotli scripts/gen_font.py`, then `--check`.

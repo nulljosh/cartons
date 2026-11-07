@@ -125,6 +125,7 @@ struct Detail: View {
     @State private var newName = ""
     @State private var cheer = false
     @State private var addingEvent = false
+    @State private var following = false
     @AppStorage("celebrated") private var celebrated = ""  // numbers Tuck already cheered for, comma-joined
     @Environment(\.dismiss) private var dismiss
 
@@ -172,6 +173,19 @@ struct Detail: View {
                     .frame(maxWidth: .infinity).padding(.vertical, 16)
                     .accessibilityElement(children: .combine)
                 }
+                #if os(iOS)
+                if store.canFollow {
+                    Section {
+                        Button(following ? "Stop Following" : "Follow on Lock Screen", systemImage: following ? "xmark.circle" : "lock.iphone") {
+                            if following { store.unfollow(parcel.number) } else { store.follow(current) }
+                            following.toggle()
+                        }
+                    } footer: {
+                        Text("Keeps the countdown on your Lock Screen and in the Dynamic Island until it arrives.")
+                    }
+                    .onAppear { following = store.isFollowing(parcel.number) }
+                }
+                #endif
             }
             if let steps = status?.steps, !steps.isEmpty {
                 Section("Progress") {

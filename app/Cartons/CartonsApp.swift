@@ -30,7 +30,10 @@ struct CartonsApp: App {
         #if os(macOS)
         .defaultSize(width: 520, height: 760)
         #else
-        .onChange(of: phase) { _, p in if p == .background { Store.scheduleRefresh() } }
+        .onChange(of: phase) { _, p in
+            if p == .background { Store.scheduleRefresh() }
+            if p == .active { store.addPending() }  // numbers shared from Mail or Safari
+        }
         .backgroundTask(.appRefresh(Store.refreshID)) {
             Store.scheduleRefresh()
             await store.refreshAll()

@@ -6,7 +6,7 @@ import UIKit
 
 /// Mirrors brand/tokens.css.
 enum Brand {
-    static let accent = Color(red: 0x8c / 255, green: 0x5a / 255, blue: 0x2c / 255)  // kraft deep
+    static let accent = Shared.accent  // kraft deep
 
     /// Registers the bundled Cartons Sans faces and puts them on the navigation bar titles. Call once at launch.
     static func registerFonts() {

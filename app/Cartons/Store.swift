@@ -2,7 +2,9 @@ import Foundation
 import Observation
 import UserNotifications
 #if os(iOS)
+import ActivityKit
 import BackgroundTasks
+import WidgetKit
 #endif
 
 struct Parcel: Codable, Identifiable, Hashable {
@@ -32,7 +34,7 @@ struct Status {
     /// Whole days from today to the ETA, nil when UPS gave none.
     var daysLeft: Int? {
         guard let etaDate else { return nil }
-        return Calendar.current.dateComponents([.day], from: Calendar.current.startOfDay(for: .now), to: Calendar.current.startOfDay(for: etaDate)).day
+        return Shared.days(to: etaDate)
     }
 }
 
@@ -69,6 +71,17 @@ final class Store {
         pullFromCloud()
         let args = ProcessInfo.processInfo.arguments  // QA hook: -add <url or number>
         if let i = args.firstIndex(of: "-add"), i + 1 < args.count { add(args[i + 1]) }
+        addPending()
+    }
+
+    /// Adds what the share extension picked up from Mail or Safari while Cartons was closed.
+    func addPending() {
+        #if os(iOS)
+        let numbers = Shared.pending
+        guard !numbers.isEmpty else { return }
+        Shared.pending = []
+        for n in numbers { add(n) }
+        #endif
     }
 
     #if DEBUG
@@ -96,9 +109,7 @@ final class Store {
     #endif
 
     /// Accepts a bare number or a pasted tracking link.
-    static func parse(_ text: String) -> String? {
-        text.range(of: "1Z[0-9A-Za-z]{16}", options: .regularExpression).map { String(text[$0]).uppercased() }
-    }
+    static func parse(_ text: String) -> String? { Shared.trackingNumber(in: text) }
 
     @discardableResult
     func add(_ text: String, name: String = "") -> Bool {
@@ -150,6 +161,8 @@ final class Store {
             notifyIfMoved(n, s)
             errors[n] = nil
             checked[n] = .now
+            publish()
+            updateActivity(n, s)
             // last known delivery day, so Siri can answer without loading UPS's page
             var etas = UserDefaults.standard.dictionary(forKey: "lastETA") as? [String: Date] ?? [:]
             etas[n] = s.delivered ? nil : s.etaDate
@@ -189,5 +202,57 @@ final class Store {
         let d = try? JSONEncoder().encode(parcels)
         UserDefaults.standard.set(d, forKey: key)
         if syncOn { cloud.set(d, forKey: key) }
+        publish()
     }
+
+    /// Writes the active packages where the widgets can read them, then asks them to redraw.
+    func publish() {
+        #if os(iOS)
+        guard !isDemo else { return }
+        let etas = UserDefaults.standard.dictionary(forKey: "lastETA") as? [String: Date] ?? [:]
+        Shared.saveSnaps(active.map { p in
+            let s = statuses[p.number]
+            return Snap(number: p.number, name: p.name, status: s?.status ?? "", eta: s?.etaDate ?? etas[p.number], delivered: s?.delivered ?? false)
+        })
+        WidgetCenter.shared.reloadAllTimelines()
+        #endif
+    }
+
+    #if os(iOS)
+    // MARK: Live Activity, the countdown on the Lock Screen and in the Dynamic Island
+
+    var canFollow: Bool { ActivityAuthorizationInfo().areActivitiesEnabled }
+
+    func isFollowing(_ n: String) -> Bool {
+        Activity<DeliveryAttributes>.activities.contains { $0.attributes.number == n }
+    }
+
+    func follow(_ p: Parcel) {
+        guard !isFollowing(p.number), let s = statuses[p.number] else { return }
+        let state = DeliveryAttributes.ContentState(status: s.status, eta: s.etaDate, delivered: s.delivered)
+        _ = try? Activity.request(attributes: DeliveryAttributes(number: p.number, name: p.name), content: .init(state: state, staleDate: nil))
+    }
+
+    func unfollow(_ n: String) {
+        for a in Activity<DeliveryAttributes>.activities where a.attributes.number == n {
+            Task { await a.end(nil, dismissalPolicy: .immediate) }
+        }
+    }
+
+    /// Keeps a followed package current after each check, and ends it a few hours after delivery.
+    private func updateActivity(_ n: String, _ s: Status) {
+        let state = DeliveryAttributes.ContentState(status: s.status, eta: s.etaDate, delivered: s.delivered)
+        for a in Activity<DeliveryAttributes>.activities where a.attributes.number == n {
+            Task {
+                if s.delivered {
+                    await a.end(.init(state: state, staleDate: nil), dismissalPolicy: .after(.now.addingTimeInterval(4 * 3600)))
+                } else {
+                    await a.update(.init(state: state, staleDate: nil))
+                }
+            }
+        }
+    }
+    #else
+    private func updateActivity(_ n: String, _ s: Status) {}
+    #endif
 }
