@@ -37,4 +37,3 @@ One number first: days until it shows up. Everything below serves that.
 - v100 Ten years of packages in one calm list
 
 ## Ingested 2026-10-22
-- [ ] Apple rejected Cartons 1.0.0 on iPhone and Mac under guideline 4.3(a), spam. Appeals sent: Mac 2026-10-25, iPhone 2026-10-26 from Joshua's Safari (the asc web login was hanging). Wait for Apple's reply; build 1.1 only if they stay vague, and resubmit only on Joshua's yes.
