@@ -37,3 +37,6 @@ One number first: days until it shows up. Everything below serves that.
 - v100 Ten years of packages in one calm list
 
 ## Ingested 2026-10-22
+
+## Ingested 2026-11-13
+- [ ] Note was the title only ("Cartons"), written in a run of App Review status checks. Report its review status. Last known (root roadmap, 2026-11-08): waiting on Apple. Could not re-pull today: the asc API is blocked by an unaccepted Apple agreement (see vault blocked-on-joshua.md).
