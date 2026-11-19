@@ -43,3 +43,6 @@ One number first: days until it shows up. Everything below serves that.
 
 ## Ingested 2026-11-16
 - [ ] (Note "Cartons") Why is Apple rejecting the iOS counterpart?
+
+## Ingested 2026-11-18
+- [ ] iOS? (Question: ship an iOS version, or check its iOS status?)
